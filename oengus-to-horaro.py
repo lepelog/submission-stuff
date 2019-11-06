@@ -3,6 +3,8 @@ import requests
 from re import findall
 from datetime import timedelta
 
+default_estimate = 10*60
+
 def iso8601_duration_as_seconds( d ):
     if d[0] != 'P':
         raise ValueError('Not an ISO 8601 Duration string')
@@ -50,7 +52,7 @@ with open('schedule.csv','w',newline='') as f:
         if line['type'] == "RACE":
             player_string = ' vs. '.join(players)
         else:
-            player_string = ','.join(players)
+            player_string = ', '.join(players)
             
         category = line['categoryName']
         if category != None:
@@ -70,9 +72,10 @@ with open('schedule.csv','w',newline='') as f:
             line['ratio'] = line['ratio'].replace('/',':')
         if line['setupBlock']:
             # bad hacky stuff
-            line['estimate'] = line['setupTime']
+            estimate = str(timedelta(seconds=iso8601_duration_as_seconds(line['setupTime'])-default_estimate))
             line['gameName'] = 'Setup'
             line['categoryName'] = 'Setup'
             player_string = 'Bingothon'
-        estimate = str(timedelta(seconds=iso8601_duration_as_seconds(line['estimate'])))
+        else:
+            estimate = str(timedelta(seconds=iso8601_duration_as_seconds(line['estimate'])))
         writer.writerow((line['gameName'], estimate, player_string, line['console'], line['categoryName'], bingotype, line['ratio']))
