@@ -34,10 +34,11 @@ def print_all_games():
 def calc_total_time_oengus():
     games_to_times=defaultdict(list)
     
-    submissions = requests.get('https://oengus.io/api/marathon/bingow19/game').json()
-    for game_submission in submissions:
-        for submission in game_submission["categories"]:
-            games_to_times[game_submission["name"]].append(datetime.timedelta(seconds=iso8601_duration_as_seconds(submission["estimate"])))
+    submissions = requests.get('https://oengus.io/api/marathon/bingos21/submissions').json()
+    for submission in submissions:
+        for game_submission in submission["games"]:
+            for category_submission in game_submission["categories"]:
+                games_to_times[game_submission["name"]].append(datetime.timedelta(seconds=iso8601_duration_as_seconds(category_submission["estimate"])))
     
     totaltime = datetime.timedelta()
     for game, times in games_to_times.items():
